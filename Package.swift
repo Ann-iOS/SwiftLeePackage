@@ -18,12 +18,15 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/WeTransfer/Mocker.git", from: "2.0.0")
+//        .package(url: "https://github.com/Boilertalk/secp256k1.swift",from: "0.1.4")
+//        .package(url: "https://github.com/hyperledger/sawtooth-sdk-swift.git", from: "0.1.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
-        .target(name: "SwiftLeePackage", dependencies: []),
+        .target(name: "SwiftLeePackage", dependencies: ["Mocker"]),
+//        .target(name: "SwiftLeePackage", dependencies: ["secp256k1"],path: "SawtoothSigning"),
         /// Add it to your test target in the dependencies array:
-        .testTarget(name: "SwiftLeePackageTests", dependencies: ["SwiftLeePackage", "Mocker"])
+//        .testTarget(name: "SwiftLeePackageTests", dependencies: ["SwiftLeePackage", "SawtoothSigning"])
     ]
 )
