@@ -15,16 +15,20 @@ let package = Package(
             name: "SwiftLeePackage",targets: ["SwiftLeePackage"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/WeTransfer/Mocker.git", from: "2.0.0"),
+//        .package(url: "https://github.com/WeTransfer/Mocker.git", from: "2.0.0"),
+
         .package(name: "SawtoothSigning", url: "https://github.com/hyperledger/sawtooth-sdk-swift.git", .branch("main")),
-//        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .branch("master"))
+        .package(name: "CryptoSwift", url: "https://github.com/krzyzanowskim/CryptoSwift.git", .branch("master")),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
-        .target(name: "SwiftLeePackage", dependencies: ["Mocker","SawtoothSigning"]),
-//        .target(name: "SwiftLeePackage", dependencies: ["secp256k1"],path: "SawtoothSigning"),
+
+        .target(name: "SwiftLeePackage", dependencies: ["SawtoothSigning","CryptoSwift"]),
+
+//        .target(name: "SwiftLeePackage", dependencies: ["SawtoothSigning"]),
+
         /// Add it to your test target in the dependencies array:
-//        .testTarget(name: "SwiftLeePackageTests", dependencies: ["SwiftLeePackage", "SawtoothSigning"])
+        .testTarget(name: "SwiftLeePackageTests", dependencies: ["SwiftLeePackage", "SawtoothSigning"])
     ]
 )

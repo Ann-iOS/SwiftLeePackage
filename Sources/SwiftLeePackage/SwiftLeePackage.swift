@@ -3,6 +3,7 @@
 import CryptoKit
 import SawtoothSigning
 import secp256k1
+import CryptoSwift
 
 
 public struct SwiftLeePackage {

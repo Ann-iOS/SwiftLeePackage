@@ -2,12 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "Mocker",
-        "repositoryURL": "https://github.com/WeTransfer/Mocker.git",
+        "package": "CryptoSwift",
+        "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
         "state": {
-          "branch": null,
-          "revision": "d245ac30ac74c5618ea2e4cc84ccf448f3091e91",
-          "version": "2.5.3"
+          "branch": "master",
+          "revision": "54b2acbb619953e641486e535389b0d6e5e76dce",
+          "version": null
         }
       },
       {
