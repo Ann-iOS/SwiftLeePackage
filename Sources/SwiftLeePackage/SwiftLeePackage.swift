@@ -1,10 +1,8 @@
 
-//import secp256k1
 import CryptoKit
 import SawtoothSigning
 import secp256k1
 import CryptoSwift
-
 
 public struct SwiftLeePackage {
     public init(){
@@ -18,6 +16,8 @@ public struct SwiftLeePackage {
 
     public func swiftPrintTestFunc(){
         print(text)
+        let mnemonic = Mnemonic.create()
+        
     }
 
     
