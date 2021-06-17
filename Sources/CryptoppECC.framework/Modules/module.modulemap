@@ -1,6 +1,0 @@
-framework module CryptoppECC {
-  umbrella header "CryptoppECC-umbrella.h"
-
-  export *
-  module * { export * }
-}
