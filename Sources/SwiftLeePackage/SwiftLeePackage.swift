@@ -1,3 +1,8 @@
+
+//import secp256k1
+import CryptoKit
+
+
 public struct SwiftLeePackage {
     public init(){
 
