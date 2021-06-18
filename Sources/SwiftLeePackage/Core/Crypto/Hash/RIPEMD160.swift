@@ -7,13 +7,13 @@
 //
 import Foundation
 
-struct RIPEMD160 {
+public struct RIPEMD160 {
     
     private var MDbuf: (UInt32, UInt32, UInt32, UInt32, UInt32)
     private var buffer: Data
     private var count: Int64 // Total # of bytes processed.
     
-    private init() {
+    public init() {
         MDbuf = (0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0)
         buffer = Data()
         count = 0

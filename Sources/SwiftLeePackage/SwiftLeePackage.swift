@@ -3,20 +3,19 @@ import CryptoKit
 import SawtoothSigning
 import secp256k1
 import CryptoSwift
+import Alamofire
 
 public struct SwiftLeePackage {
     public init(){
 
     }
 
-    public var text = "Hello, World!"
-    public func swiftTestPrint(){
-        print("Hello. SwiftLeePackage")
+    public func createMnemonic() -> String {
+        let mnemonic = Mnemonic.create()
+        return mnemonic
     }
 
     public func swiftPrintTestFunc(){
-        print(text)
-        let mnemonic = Mnemonic.create()
         
     }
 
