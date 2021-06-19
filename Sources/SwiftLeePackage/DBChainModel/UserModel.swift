@@ -9,15 +9,15 @@ import Foundation
 
 public struct UserModel: Codable {
 
-    var height: String
-    var result: resultModel
+    public var height: String
+    public var result: resultModel
 
-    struct resultModel: Codable {
+    public struct resultModel: Codable {
         var type: String
         var value: valueData
     }
 
-    struct valueData: Codable {
+    public struct valueData: Codable {
         var address: String
         var coins: [coinData]?
         var public_key: String
@@ -25,7 +25,7 @@ public struct UserModel: Codable {
         var sequence: String
     }
 
-    struct coinData: Codable {
+    public struct coinData: Codable {
         var denom: String
         var amount: String
     }

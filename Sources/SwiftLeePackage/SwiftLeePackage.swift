@@ -1,4 +1,4 @@
-
+import Foundation
 import CryptoKit
 import SawtoothSigning
 import secp256k1
@@ -7,7 +7,6 @@ import Alamofire
 
 public struct SwiftLeePackage {
     public init(){
-
     }
 
     public func createMnemonic() -> String {
@@ -19,5 +18,5 @@ public struct SwiftLeePackage {
         
     }
 
-    
+
 }
