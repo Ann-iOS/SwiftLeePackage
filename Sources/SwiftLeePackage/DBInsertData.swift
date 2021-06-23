@@ -15,6 +15,239 @@ public class InsertDara {
     // 准备签名数据
     let fee : [String:Any] = ["amount":[],"gas":"99999999"]
 
+    /// 插入数据
+    func insertRowSortedSignDic(baseUrlStr:String,publikeyBase:String,model:UserModel,fields : [String:Any],address:String,tableName:String,appcode:String,chainid:String,PrivateKeyDataUint:[UInt8],insertStatusBlock:@escaping(_ status:String) -> Void){
+
+        let fieldsStr = fields.dicValueString(fields)
+
+        let fieldsData = Data(fieldsStr!.utf8)
+        let fieldBase = fieldsData.base64EncodedString()
+
+         let valueDic:[String:Any] = ["app_code":appcode,
+                                      "owner":address,
+                                      "fields":fieldBase,
+                                      "table_name":tableName]
+
+         let msgDic:[String:Any] = ["type":"dbchain/InsertRow",
+                                    "value":valueDic]
+         msgArr.append(msgDic)
+
+         let signDiv : [String:Any] = ["account_number":model.result.value.account_number,
+                                       "chain_id":chainid,
+                                       "fee":fee,
+                                       "memo":"",
+                                       "msgs":msgArr,
+                                       "sequence":model.result.value.sequence]
+
+
+        let str = signDiv.dicValueString(signDiv)
+        var replacStr = str!.replacingOccurrences(of: "dbchain\\/InsertRow", with: "dbchain/InsertRow")
+        replacStr = replacStr.replacingOccurrences(of: "\\/", with: "/")
+
+         let str8 = [UInt8](replacStr.utf8)
+        do{
+
+            let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
+            insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
+                insertStatusBlock(status)
+            }
+        } catch {
+            insertStatusBlock("0")
+        }
+     }
+
+    ///  冻结数据
+    func trashcanRowSortedSignDic(baseUrlStr:String,publikeyBase:String,PrivateKeyDataUint:[UInt8],model:UserModel,deleteID:String,address:String,tableName:String,appcode:String,chainid:String,insertStatusBlock:@escaping(_ status:String) -> Void){
+
+         let valueDic:[String:Any] = ["app_code":appcode,
+                                      "owner":address,
+                                      "id":deleteID,
+                                      "table_name":tableName]
+
+         let msgDic:[String:Any] = ["type":"dbchain/FreezeRow",
+                                    "value":valueDic]
+
+         msgArr.append(msgDic)
+
+         let signDiv : [String:Any] = ["account_number":model.result.value.account_number,
+                                       "chain_id":chainid,
+                                       "fee":fee,
+                                       "memo":"",
+                                       "msgs":msgArr,
+                                       "sequence":model.result.value.sequence]
+
+         // 排序方法只对value进行,所以在外层包裹一层
+         let signDivSorted = ["key":signDiv]
+
+//         let sortSignDiv = SortedDict().sortedDictionary(byLowercaseString: signDivSorted)
+        let sortSignDiv = sortedDictionarybyLowercaseString(dic: signDivSorted)
+
+        if(sortSignDiv.count > 0 ){
+            let sorted = sortSignDiv.sorted {($0 as AnyObject).key! < ($1 as AnyObject).key!}
+             for element in sorted {
+                let elementDic : Dictionary = element 
+                let str = elementDic.creatJsonString(dict: elementDic)
+                let str8 = [UInt8](str.utf8)
+
+                do {
+                    let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
+                    insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
+                        insertStatusBlock(status)
+                    }
+                } catch {
+                    insertStatusBlock("0")
+                }
+             }
+
+         } else {
+            insertStatusBlock("0")
+         }
+     }
+
+
+    ///  函数请求
+    /// - Parameters:
+    ///   - model: usermodel
+    ///   - argument: 多条数据请求的字符串 格式:
+    ///      ["tableName__表名"," 第一条数据的字符串数组排列",  " 第二条数据的字符串数组排列 ",.......]
+    ///   - address: 地址
+    ///   - function_name: 函数名称
+    ///   - appcode: appcode
+    ///   - chainid: chainid
+    ///   - insertStatusBlock: 结果
+    func functionSignDic(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,signArgument:String,address:String,function_name:String,appcode:String,chainid:String,insertStatusBlock:@escaping(_ status:String) -> Void){
+
+         let signvalueDic:[String:Any] = ["app_code":appcode,
+                                          "owner":address,
+                                          "argument":signArgument,
+                                          "function_name":function_name]
+
+         let signmsgDic:[String:Any] = ["type":"dbchain/CallFunction",
+                                        "value":signvalueDic]
+        msgArr.append(signmsgDic)
+
+        let signDiv : [String:Any] = ["account_number":model.result.value.account_number,
+                                      "chain_id":chainid,
+                                      "fee":fee,
+                                      "memo":"",
+                                      "msgs":msgArr,
+                                      "sequence":model.result.value.sequence]
+
+        let str = signDiv.dicValueString(signDiv)
+
+        var replacStr = str!.replacingOccurrences(of: "dbchain\\/CallFunction", with: "dbchain/CallFunction")
+        replacStr = replacStr.replacingOccurrences(of: "\\/", with: "/")
+
+        let str8 = [UInt8](replacStr.utf8)
+        do {
+            let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
+//            let verifyStr = try verifySawtoothSigning(signature: signData.hex, data: str8, publicKey:PublikeyData.bytes)
+            insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
+                insertStatusBlock(status)
+            }
+        } catch {
+            insertStatusBlock("1")
+        }
+
+     }
+
+    ///  函数请求  多条数据打包格式
+    /// - Parameters:
+    ///   - model: usermodel
+    ///   - argument: 多条数据请求的字符串 格式:
+    ///      ["tableName__表名"," 第一条数据的字符串数组排列",  " 第二条数据的字符串数组排列 ",.......]
+    ///   - address: 地址
+    ///   - function_nameArr: 函数名称   和 signArguments  必须数量一致. 否则将会cash
+    ///   - appcode: appcode
+    ///   - chainid: chainid
+    ///   - insertStatusBlock: 结果
+    func functionSignDicArr(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,signArgumentsAndFunctionNames:[String:String],address:String,appcode:String,chainid:String,insertStatusBlock:@escaping(_ status:String) -> Void){
+
+            for (signStr,funtionName) in signArgumentsAndFunctionNames {
+                let signvalueDic:[String:Any] = ["app_code":appcode,
+                                                 "owner":address,
+                                                 "argument":signStr,
+                                                 "function_name":funtionName]
+
+                let signmsgDic:[String:Any] = ["type":"dbchain/CallFunction",
+                                               "value":signvalueDic]
+                self.msgArr.append(signmsgDic)
+            }
+            let signDiv : [String:Any] = ["account_number":model.result.value.account_number,
+                                          "chain_id":chainid,
+                                          "fee":self.fee,
+                                          "memo":"",
+                                          "msgs":self.msgArr,
+                                          "sequence":model.result.value.sequence]
+
+            let str = signDiv.dicValueString(signDiv)
+
+            var replacStr = str!.replacingOccurrences(of: "dbchain\\/CallFunction", with: "dbchain/CallFunction")
+            replacStr = replacStr.replacingOccurrences(of: "\\/", with: "/")
+
+            let str8 = [UInt8](replacStr.utf8)
+        do {
+            let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
+
+//            let verifyStr = try verifySawtoothSigning(signature: signData.hex, data: str8, publicKey: PasswordManager.getOutPublikeyData()!.bytes)
+
+            insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
+                insertStatusBlock(status)
+            }
+
+        } catch {
+            insertStatusBlock("0")
+        }
+
+     }
+
+
+    /// 多条数据打包上传, 在外处理数据形式  灵活处理
+    /// - Parameters:
+    ///   - model: 用户模型
+    ///   - msgObjectArr: 打包的数据, 字典数组类型
+    ///   - insertStatusBlock: 回调
+    func functionSignMsgObjectArr(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,address:String,appcode:String,Chainid:String,msgObjectArr:[Dictionary<String, Any>],insertStatusBlock:@escaping(_ status:String) -> Void){
+
+//            for (signStr,funtionName) in signArgumentsAndFunctionNames {
+//                let signvalueDic:[String:Any] = ["app_code":appcode,
+//                                                 "owner":address,
+//                                                 "argument":signStr,
+//                                                 "function_name":funtionName]
+//
+//                let signmsgDic:[String:Any] = ["type":"dbchain/CallFunction",
+//                                               "value":signvalueDic]
+//                self.msgArr.append(signmsgDic)
+//            }
+
+            self.msgArr = msgObjectArr
+            let signDiv : [String:Any] = ["account_number":model.result.value.account_number,
+                                          "chain_id":Chainid,
+                                          "fee":self.fee,
+                                          "memo":"",
+                                          "msgs":msgObjectArr,
+                                          "sequence":model.result.value.sequence]
+
+            let str = signDiv.dicValueString(signDiv)
+
+            var replacStr = str!.replacingOccurrences(of: "dbchain\\/CallFunction", with: "dbchain/CallFunction")
+            replacStr = replacStr.replacingOccurrences(of: "\\/", with: "/")
+
+            let str8 = [UInt8](replacStr.utf8)
+        do {
+            let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
+//            let verifyStr = try verifySawtoothSigning(signature: signData.hex, data: str8, publicKey: PasswordManager.getOutPublikeyData()!.bytes)
+            insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
+                insertStatusBlock(status)
+            }
+        } catch {
+            insertStatusBlock("0")
+        }
+
+     }
+
+
+
     /// 最终提交数据
     /// - Parameters:
     ///   - urlStr: 插入数据的url地址.
@@ -25,11 +258,9 @@ public class InsertDara {
     ///   返回 0  表示查询结果的倒计时结束, 数据插入不成功.
     ///   返回 1  表示数据已成功插入数据库
     ///   返回 2  表示该条数据插入的结果还处于等待状态.
-    public func insertRowData(urlStr:String,publikeyBase:String ,signature: Data,insertDataStatusBlock:@escaping(_ Status:String) -> Void) {
+    public func insertRowData(baseUrlStr:String,publikeyBase:String ,signature: Data,insertDataStatusBlock:@escaping(_ Status:String) -> Void) {
 
         let sign = signature.base64EncodedString()
-
-//        let publikeyBase = PasswordManager.getOutPublikeyData()!.base64EncodedString()
 
         let signDivSorted = ["key":["type":"tendermint/PubKeySecp256k1",
                                     "value":publikeyBase]]
@@ -52,7 +283,7 @@ public class InsertDara {
 
         let isTimerExistence = DBGCDTimer.shared.isExistTimer(WithTimerName: "VerificationHash")
         
-        DBRequest.POST(url: urlStr, params:( dataSort[0] )) { [self] (json) in
+        DBRequest.POST(url: baseUrlStr, params:( dataSort[0] )) { [self] (json) in
              let decoder = JSONDecoder()
              let insertModel = try? decoder.decode(InsertModel.self, from: json)
              guard let model = insertModel else {
@@ -71,7 +302,7 @@ public class InsertDara {
                 DBGCDTimer.shared.scheduledDispatchTimer(WithTimerName: "DBVerificationHash", timeInterval: 1, queue: .main, repeats: true) {
                     waitTime -= 1
                     if waitTime > 0 {
-                        verificationHash(url: urlStr, hash: model.txhash!) { (status) in
+                        verificationHash(url: baseUrlStr, hash: model.txhash!) { (status) in
                             NSLog("verificationHash:\(status),时间和次数:\(waitTime)")
                             if status != "2"{
                                 //  成功或失败都直接返回 停止计时器
