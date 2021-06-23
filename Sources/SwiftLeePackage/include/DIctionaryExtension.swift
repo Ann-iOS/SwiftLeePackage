@@ -10,13 +10,13 @@ import Foundation
 // MARK: 字典转字符串
 extension Dictionary{
 
-    func convertDictionaryToJSONString(dict:NSDictionary?)->String {
+    public func convertDictionaryToJSONString(dict:NSDictionary?)->String {
         let data = try? JSONSerialization.data(withJSONObject: dict!, options: JSONSerialization.WritingOptions.init(rawValue: 0))
         let jsonStr = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
         return jsonStr! as String
     }
 
-    func dicValueString(_ dic:[String : Any]) -> String?{
+    public func dicValueString(_ dic:[String : Any]) -> String?{
         var jsonData = Data()
         var jsonStr = String()
         do {
@@ -29,7 +29,7 @@ extension Dictionary{
        }
 
     // MARK: 字典转字符串 无序
-    func toJsonString() -> String? {
+    public func toJsonString() -> String? {
         guard let data = try? JSONSerialization.data(withJSONObject: self,
                                                      options: []) else {
             return nil
@@ -41,14 +41,14 @@ extension Dictionary{
      }
 
     // MARK: 打印时
-    func jsonPrint() {
+    public func jsonPrint() {
         let ff = try! JSONSerialization.data(withJSONObject:self, options: [])
         let str = String(data:ff, encoding: .utf8)
         print(str!)
     }
 
     // MARK: 字典转字符串  有序
-    func creatJsonString(dict: [String:Any]) ->String{
+    public func creatJsonString(dict: [String:Any]) ->String{
 
         if(!JSONSerialization.isValidJSONObject(dict)) {
             return ""
@@ -78,7 +78,7 @@ extension Dictionary{
     }
 
 
-    func dictionaryToData() -> Data? {
+    public func dictionaryToData() -> Data? {
         do {
             return try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
         } catch {
@@ -97,7 +97,7 @@ extension Data {
         return map { String(format: "%02x", UInt8($0)) }.joined()
     }
 
-    func dataToDictionary() -> [String: Any]? {
+    public func dataToDictionary() -> [String: Any]? {
         do {
             return try JSONSerialization.jsonObject(with: self, options: []) as? [String : Any]
         } catch {
@@ -110,21 +110,21 @@ extension Data {
 extension Date {
 
     /// 获取当前 秒级 时间戳 - 10位
-     var timeStamp : String {
+    public var timeStamp : String {
          let timeInterval: TimeInterval = self.timeIntervalSince1970
          let timeStamp = Int(timeInterval)
          return "\(timeStamp)"
      }
 
     /// 获取当前 毫秒级 时间戳 - 13位
-    var milliStamp : String {
+    public var milliStamp : String {
           let timeInterval: TimeInterval = self.timeIntervalSince1970
           let millisecond = CLongLong(round(timeInterval*1000))
           return "\(millisecond)"
       }
 
     //日期 -> 字符串
-    func dateToString(_ date:Date, dateFormat:String = "yyyy-MM-dd HH:mm:ss") -> String {
+    public func dateToString(_ date:Date, dateFormat:String = "yyyy-MM-dd HH:mm:ss") -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale.init(identifier: "zh_CN")
         formatter.dateFormat = dateFormat
@@ -133,7 +133,7 @@ extension Date {
     }
 
     //字符串 -> 日期
-    func stringToDate(_ string:String, dateFormat:String = "yyyy-MM-dd HH:mm:ss") -> Date {
+    public func stringToDate(_ string:String, dateFormat:String = "yyyy-MM-dd HH:mm:ss") -> Date {
         let formatter = DateFormatter()
         formatter.locale = Locale.init(identifier: "zh_CN")
         formatter.dateFormat = dateFormat
@@ -149,7 +149,7 @@ extension Date {
     /// - Parameter time: <#time description#>
     /// - dayNum :  天数
     /// - Returns:
-    func callTimeAfewDaysago(timeStamp: Double,dayNum:Int) -> Bool {
+    public func callTimeAfewDaysago(timeStamp: Double,dayNum:Int) -> Bool {
 
         //获取当前的时间戳
         let currentTime = Date().timeIntervalSince1970
@@ -174,7 +174,7 @@ extension Date {
     // MARK: 4.1、取得与当前时间的间隔差
     /// 取得与当前时间的间隔差
     /// - Returns: 时间差
-    func callTimeAfterNow() -> String {
+    public func callTimeAfterNow() -> String {
         let timeInterval = Date().timeIntervalSince(self)
         if timeInterval < 0 {
             return "刚刚"

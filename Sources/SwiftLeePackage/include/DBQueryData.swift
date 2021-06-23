@@ -7,8 +7,10 @@
 
 import Foundation
 
-public class Query : NSObject {
+public struct Query {
 
+    public init() { }
+    
     /// 查询指定id数据
     /// - Parameters: URL 格式应如下  tableName: 需要查询表的名称,
     //      let token = Token().createAccessToken()
@@ -17,7 +19,7 @@ public class Query : NSObject {
     ///   - tableName: 表名
     ///   - id: 需要查询的 id
     ///   - Returns:成功返回JsonStr,  失败返回字符串 Query Failed: \(error message)
-    @objc public func queryUserData(url:String,closeBlock:@escaping(_ queryStatus:String) -> Void) -> Void {
+    public func queryUserData(url:String,closeBlock:@escaping(_ queryStatus:String) -> Void) -> Void {
       DBRequest.GET(url: url, params: nil) { (data) in
           let jsonStr : String = String(data: data, encoding: .utf8) ?? "查询为空"
           closeBlock(jsonStr)
@@ -35,7 +37,7 @@ public class Query : NSObject {
     ///   - appcode: 对应数据库 的 appcode
     ///   - closeBlock: 闭包回调,. 成功返回 JsonStr.  失败返回 字符串 Query Failed: \(error message)
     /// - Returns:  成功返回 JsonStr.  失败返回 字符串 Query Failed: \(error message)
-    @objc public func queryTableData(urlStr:String,tableName: String,appcode:String,closeBlock:@escaping(_ queryStatus:String) -> Void) -> Void {
+    public func queryTableData(urlStr:String,tableName: String,appcode:String,closeBlock:@escaping(_ queryStatus:String) -> Void) -> Void {
       let name : [[String:Any]] = [["method":"table","table":tableName]]
       guard let nameData : Data = ObjectToData(object: name) else { return }
       let nameBase = Base58.encode(nameData)
@@ -59,7 +61,7 @@ public class Query : NSObject {
     ///   - fieldToValueDic: 查询字段名和数据组成的字典:  ["字段名" : "数据"]
     ///   - closeBlock: 闭包回调,. 成功返回 data 类型.  失败返回 error message 的 data 形式
     /// - Returns:. 成功返回 JsonStr.  失败返回 字符串 Query Failed: \(error message)
-    @objc public func queryOneData(urlStr:String,tableName: String,appcode:String,fieldToValueDic:[String:Any],closeBlock:@escaping(_ queryData : Data) -> Void) -> Void {
+    public func queryOneData(urlStr:String,tableName: String,appcode:String,fieldToValueDic:[String:Any],closeBlock:@escaping(_ queryData : Data) -> Void) -> Void {
         var nameArr : [[String:Any]] = [["method":"table","table":tableName]]
         for (key,value) in fieldToValueDic {
             let arr = ["field":key,"method":"where","operator":"=","value":value]
@@ -110,7 +112,7 @@ public class Query : NSObject {
     ///   - fieldToValueDic: 查询条件
     ///   - closeBlock: 回调查询结果
     /// - Returns: 成功返回 jsonString  失败 返回字符串 " 0 "
-    @objc public func queryInheritListData(urlStr : String,tableName:String,fieldToValueDic:[String:Any]?,closeBlock:@escaping(_ queryStatus:String) -> Void) -> Void {
+    public func queryInheritListData(urlStr : String,tableName:String,fieldToValueDic:[String:Any]?,closeBlock:@escaping(_ queryStatus:String) -> Void) -> Void {
         var nameArr : [[String:Any]] = [["method":"table","table":tableName]]
         if fieldToValueDic?.count ?? 0 > 0 {
             for (key,value) in fieldToValueDic! {

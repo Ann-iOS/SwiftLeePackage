@@ -9,14 +9,43 @@ import Foundation
 import UIKit
 import Alamofire
 
-public class InsertDara {
+open class InsertDara :NSObject {
 
+    public var appcode :String
+    public var publikeyBase64Str :String
+    public var address :String
+    public var tableName :String
+    public var chainid :String
+    public var privateKeyDataUint :[UInt8]
+    public var baseUrl :String
     var msgArr = [Dictionary<String, Any>]()
     // 准备签名数据
     let fee : [String:Any] = ["amount":[],"gas":"99999999"]
 
+    public init(appcode: String,
+                publikeyBase64Str: String,
+                address: String,
+                tableName: String,
+                chainid: String,
+                privateKeyDataUint: [UInt8],
+                baseUrl: String) {
+
+        self.appcode = appcode
+        self.address = address
+        self.publikeyBase64Str = publikeyBase64Str
+        self.tableName = tableName
+        self.chainid = chainid
+        self.privateKeyDataUint = privateKeyDataUint
+        self.baseUrl = baseUrl
+    }
+
+    deinit {
+
+    }
+
+
     /// 插入数据
-    func insertRowSortedSignDic(baseUrlStr:String,publikeyBase:String,model:UserModel,fields : [String:Any],address:String,tableName:String,appcode:String,chainid:String,PrivateKeyDataUint:[UInt8],insertStatusBlock:@escaping(_ status:String) -> Void){
+    public func insertRowSortedSignDic(model:UserModel,fields : [String:Any],insertStatusBlock:@escaping(_ status:String) -> Void){
 
         let fieldsStr = fields.dicValueString(fields)
 
@@ -47,8 +76,8 @@ public class InsertDara {
          let str8 = [UInt8](replacStr.utf8)
         do{
 
-            let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
-            insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
+            let signData = try signSawtoothSigning(data: str8, privateKey: privateKeyDataUint)
+            insertRowData(baseUrlStr: baseUrl, publikeyBase: publikeyBase64Str, signature: signData) { (status) in
                 insertStatusBlock(status)
             }
         } catch {
@@ -57,7 +86,7 @@ public class InsertDara {
      }
 
     ///  冻结数据
-    func trashcanRowSortedSignDic(baseUrlStr:String,publikeyBase:String,PrivateKeyDataUint:[UInt8],model:UserModel,deleteID:String,address:String,tableName:String,appcode:String,chainid:String,insertStatusBlock:@escaping(_ status:String) -> Void){
+    public func trashcanRowSortedSignDic(model:UserModel,deleteID:String,insertStatusBlock:@escaping(_ status:String) -> Void){
 
          let valueDic:[String:Any] = ["app_code":appcode,
                                       "owner":address,
@@ -90,8 +119,8 @@ public class InsertDara {
                 let str8 = [UInt8](str.utf8)
 
                 do {
-                    let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
-                    insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
+                    let signData = try signSawtoothSigning(data: str8, privateKey: privateKeyDataUint)
+                    insertRowData(baseUrlStr: baseUrl, publikeyBase: publikeyBase64Str, signature: signData) { (status) in
                         insertStatusBlock(status)
                     }
                 } catch {
@@ -115,7 +144,7 @@ public class InsertDara {
     ///   - appcode: appcode
     ///   - chainid: chainid
     ///   - insertStatusBlock: 结果
-    func functionSignDic(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,signArgument:String,address:String,function_name:String,appcode:String,chainid:String,insertStatusBlock:@escaping(_ status:String) -> Void){
+    public func functionSignDic(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,signArgument:String,address:String,function_name:String,appcode:String,chainid:String,insertStatusBlock:@escaping(_ status:String) -> Void){
 
          let signvalueDic:[String:Any] = ["app_code":appcode,
                                           "owner":address,
@@ -161,7 +190,7 @@ public class InsertDara {
     ///   - appcode: appcode
     ///   - chainid: chainid
     ///   - insertStatusBlock: 结果
-    func functionSignDicArr(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,signArgumentsAndFunctionNames:[String:String],address:String,appcode:String,chainid:String,insertStatusBlock:@escaping(_ status:String) -> Void){
+    public func functionSignDicArr(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,signArgumentsAndFunctionNames:[String:String],address:String,appcode:String,chainid:String,insertStatusBlock:@escaping(_ status:String) -> Void){
 
             for (signStr,funtionName) in signArgumentsAndFunctionNames {
                 let signvalueDic:[String:Any] = ["app_code":appcode,
@@ -207,7 +236,7 @@ public class InsertDara {
     ///   - model: 用户模型
     ///   - msgObjectArr: 打包的数据, 字典数组类型
     ///   - insertStatusBlock: 回调
-    func functionSignMsgObjectArr(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,address:String,appcode:String,Chainid:String,msgObjectArr:[Dictionary<String, Any>],insertStatusBlock:@escaping(_ status:String) -> Void){
+    public func functionSignMsgObjectArr(baseUrlStr:String,PrivateKeyDataUint:[UInt8],publikeyBase:String,model:UserModel,address:String,appcode:String,Chainid:String,msgObjectArr:[Dictionary<String, Any>],insertStatusBlock:@escaping(_ status:String) -> Void){
 
 //            for (signStr,funtionName) in signArgumentsAndFunctionNames {
 //                let signvalueDic:[String:Any] = ["app_code":appcode,

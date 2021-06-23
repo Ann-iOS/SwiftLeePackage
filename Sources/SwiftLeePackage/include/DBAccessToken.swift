@@ -7,8 +7,10 @@
 
 import Foundation
 
-public class DBToken {
+public struct DBToken {
 
+    public init(){}
+    
     /// 获取当前 毫秒级 时间戳 - 13位
     public  var milliStamp : String {
           let timeInterval: TimeInterval = Date().timeIntervalSince1970

@@ -7,7 +7,9 @@
 
 import Foundation
 
-public class DBRequestCollection: NSObject {
+public struct DBRequestCollection {
+
+    public init(){ }
 
     /// 获取用户信息
     /// - Parameters:

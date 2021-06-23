@@ -6,8 +6,11 @@
 //
 
 import Foundation
-public class DBMnemonicManager {
 
+public struct DBMnemonicManager {
+
+    public init(){ }
+    
     /// 获取公钥私钥地址. 传入由12个英文单词以逗号分隔的数组, 返回格式为 字符串
     /// - Parameter mnemonicArr: 由12个英文单词以逗号分隔的数组,
     /// - Returns: 返回公钥私钥地址字符串
