@@ -287,7 +287,7 @@ open class InsertDara :NSObject {
     ///   返回 0  表示查询结果的倒计时结束, 数据插入不成功.
     ///   返回 1  表示数据已成功插入数据库
     ///   返回 2  表示该条数据插入的结果还处于等待状态.
-    public func insertRowData(baseUrlStr:String,publikeyBase:String ,signature: Data,insertDataStatusBlock:@escaping(_ Status:String) -> Void) {
+     func insertRowData(baseUrlStr:String,publikeyBase:String ,signature: Data,insertDataStatusBlock:@escaping(_ Status:String) -> Void) {
 
         let sign = signature.base64EncodedString()
 
