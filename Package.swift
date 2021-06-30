@@ -20,6 +20,7 @@ let package = Package(
     targets: [
 //        .target(name: "SwiftLeePackage", dependencies: ["SawtoothSigning","CryptoSwift","Alamofire"]),
 //        .testTarget(name: "SwiftLeePackageTests", dependencies: ["SwiftLeePackage", "SawtoothSigning","CryptoSwift","Alamofire"])
+
         .target(name: "SwiftLeePackage", dependencies: ["SawtoothSigning","CryptoSwift","Alamofire"],
                 path: "Sources",
                 publicHeadersPath: "../Sources"),
