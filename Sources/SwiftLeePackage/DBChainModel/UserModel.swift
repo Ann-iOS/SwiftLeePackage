@@ -7,25 +7,58 @@
 
 import Foundation
 
-public struct UserModel: Codable {
+public class UserModel:NSObject, Codable {
 
-    public var height: String
-    public var result: resultModel
+//    public init () {
+//    }
+//    public var height: String
+//    public var result: resultModel
+//
+//    public struct resultModel: Codable {
+//        var type: String
+//        var value: valueData
+//    }
+//
+//    public struct valueData: Codable {
+//        var address: String
+//        var coins: [coinData]?
+//        var public_key: [publickey]?
+//        var account_number: String
+//        var sequence: String
+//    }
+//
+//    public struct publickey: Codable {
+//        var type: String
+//        var value: String
+//    }
+//
+//    public struct coinData: Codable {
+//        var denom: String
+//        var amount: String
+//    }
 
-    public struct resultModel: Codable {
+    var height: String
+    var result: resultModel
+
+    struct resultModel: Codable {
         var type: String
         var value: valueData
     }
 
-    public struct valueData: Codable {
+    struct valueData: Codable {
         var address: String
         var coins: [coinData]?
-        var public_key: String
+        var public_key: publicData?
         var account_number: String
         var sequence: String
     }
 
-    public struct coinData: Codable {
+    struct publicData: Codable {
+        var type: String
+        var value: String
+    }
+
+    struct coinData: Codable {
         var denom: String
         var amount: String
     }

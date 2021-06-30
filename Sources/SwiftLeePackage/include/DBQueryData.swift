@@ -21,7 +21,7 @@ public struct Query {
     ///   - Returns:成功返回JsonStr,  失败返回字符串 Query Failed: \(error message)
     public func queryUserData(url:String,closeBlock:@escaping(_ queryStatus:String) -> Void) -> Void {
       DBRequest.GET(url: url, params: nil) { (data) in
-          let jsonStr : String = String(data: data, encoding: .utf8) ?? "查询为空"
+          let jsonStr : String = String(data: data, encoding: .utf8) ?? ""
           closeBlock(jsonStr)
       } failure: { (code, message) in
           closeBlock("Query Failed:\(message)")
@@ -42,6 +42,7 @@ public struct Query {
       guard let nameData : Data = ObjectToData(object: name) else { return }
       let nameBase = Base58.encode(nameData)
       let url = urlStr + "\(appcode)/" + nameBase
+        print("查询请求的 URL:\(url)")
         DBRequest.GET(url: url, params: nil) { (data) in
         let jsonStr : String = String(data: data, encoding: .utf8)!
           closeBlock(jsonStr)
@@ -77,30 +78,6 @@ public struct Query {
             closeBlock(message.data(using: .utf8)!)
         }
     }
-
-//    ///过滤数据
-//    @objc func trashcanData(tableName:String,closeBlock:@escaping(_ resultArr : [trashcanModel]) -> Void){
-//        var dataArr : [trashcanModel] = []
-//        queryOneData(tableName: DatabaseTableName.trashcan.rawValue, appcode: APPCODE, fieldToValueDic: ["created_by":PasswordManager.getOutAddress()!]) { (jsonData) in
-//            let jsonStr = String(data: jsonData, encoding: .utf8)
-//            if let BaseModel = BaseTrashcanModel.deserialize(from: jsonStr) {
-//                if BaseModel.result?.count ?? 0 > 0 {
-//                    for i in 0..<BaseModel.result!.count {
-//                        let model = BaseModel.result![i]
-//                        if model.trashabletype == tableName,model.created_by == PasswordManager.getOutAddress() {
-//                            dataArr.append(model)
-//                        }
-//                    }
-//                    closeBlock(dataArr)
-//                } else {
-//                    closeBlock(dataArr)
-//                }
-//            } else {
-//                ProgressHUDManager.dismiss()
-//                CustomApngHUD.hide()
-//            }
-//        }
-//    }
 
     /// 传承查询  - 查询传承需使用特定的方法.
     /// - Parameters:
@@ -141,7 +118,7 @@ public func ObjectToData(object: Any) -> Data? {
     do {
         return try JSONSerialization.data(withJSONObject: object, options: []);
     } catch {
-        print("字典 | 数组 转Data错误")
+        return nil;
     }
     return nil;
 }

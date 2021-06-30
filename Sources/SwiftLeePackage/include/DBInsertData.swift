@@ -18,6 +18,8 @@ open class InsertDara :NSObject {
     public var chainid :String
     public var privateKeyDataUint :[UInt8]
     public var baseUrl :String
+    public var insertDataUrl: String
+    public var publicKey :String
     var msgArr = [Dictionary<String, Any>]()
     // 准备签名数据
     let fee : [String:Any] = ["amount":[],"gas":"99999999"]
@@ -28,7 +30,9 @@ open class InsertDara :NSObject {
                 tableName: String,
                 chainid: String,
                 privateKeyDataUint: [UInt8],
-                baseUrl: String) {
+                baseUrl: String,
+                publicKey: String,
+                insertDataUrl: String) {
 
         self.appcode = appcode
         self.address = address
@@ -37,6 +41,8 @@ open class InsertDara :NSObject {
         self.chainid = chainid
         self.privateKeyDataUint = privateKeyDataUint
         self.baseUrl = baseUrl
+        self.publicKey = publicKey
+        self.insertDataUrl = insertDataUrl
     }
 
     deinit {
@@ -74,10 +80,9 @@ open class InsertDara :NSObject {
         replacStr = replacStr.replacingOccurrences(of: "\\/", with: "/")
 
          let str8 = [UInt8](replacStr.utf8)
-        do{
-
+        do {
             let signData = try signSawtoothSigning(data: str8, privateKey: privateKeyDataUint)
-            insertRowData(baseUrlStr: baseUrl, publikeyBase: publikeyBase64Str, signature: signData) { (status) in
+            insertRowData(baseUrlStr: insertDataUrl, publikeyBase: publikeyBase64Str, signature: signData) { (status) in
                 insertStatusBlock(status)
             }
         } catch {
@@ -120,7 +125,7 @@ open class InsertDara :NSObject {
 
                 do {
                     let signData = try signSawtoothSigning(data: str8, privateKey: privateKeyDataUint)
-                    insertRowData(baseUrlStr: baseUrl, publikeyBase: publikeyBase64Str, signature: signData) { (status) in
+                    insertRowData(baseUrlStr: insertDataUrl, publikeyBase: publikeyBase64Str, signature: signData) { (status) in
                         insertStatusBlock(status)
                     }
                 } catch {
@@ -218,8 +223,6 @@ open class InsertDara :NSObject {
         do {
             let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
 
-//            let verifyStr = try verifySawtoothSigning(signature: signData.hex, data: str8, publicKey: PasswordManager.getOutPublikeyData()!.bytes)
-
             insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
                 insertStatusBlock(status)
             }
@@ -265,14 +268,12 @@ open class InsertDara :NSObject {
             let str8 = [UInt8](replacStr.utf8)
         do {
             let signData = try signSawtoothSigning(data: str8, privateKey: PrivateKeyDataUint)
-//            let verifyStr = try verifySawtoothSigning(signature: signData.hex, data: str8, publicKey: PasswordManager.getOutPublikeyData()!.bytes)
             insertRowData(baseUrlStr: baseUrlStr, publikeyBase: publikeyBase, signature: signData) { (status) in
                 insertStatusBlock(status)
             }
         } catch {
             insertStatusBlock("0")
         }
-
      }
 
 
@@ -313,9 +314,11 @@ open class InsertDara :NSObject {
         let isTimerExistence = DBGCDTimer.shared.isExistTimer(WithTimerName: "VerificationHash")
         
         DBRequest.POST(url: baseUrlStr, params:( dataSort[0] )) { [self] (json) in
+            
              let decoder = JSONDecoder()
              let insertModel = try? decoder.decode(InsertModel.self, from: json)
              guard let model = insertModel else {
+                insertDataStatusBlock("0")
                  return
              }
 
@@ -327,11 +330,12 @@ open class InsertDara :NSObject {
 
                 /// 查询请求最长等待时长
                 var waitTime = 15
-
+                let token = DBToken().createAccessToken(privateKey: privateKeyDataUint, PublikeyData:self.publicKey.hexaData)
                 DBGCDTimer.shared.scheduledDispatchTimer(WithTimerName: "DBVerificationHash", timeInterval: 1, queue: .main, repeats: true) {
                     waitTime -= 1
                     if waitTime > 0 {
-                        verificationHash(url: baseUrlStr, hash: model.txhash!) { (status) in
+                        let requestUrl = baseUrl + "dbchain/tx-simple-result/" + "\(token)/" + "\(model.txhash!)"
+                        verificationHash(url: requestUrl) { (status) in
                             NSLog("verificationHash:\(status),时间和次数:\(waitTime)")
                             if status != "2"{
                                 //  成功或失败都直接返回 停止计时器
@@ -378,7 +382,7 @@ open class InsertDara :NSObject {
     ///   - url: 地址
     ///   - hash: 插入数据时返回的hash值
     /// - Returns: 不为空则是成功
-    public func verificationHash(url:String,hash:String,verifiSuccessBlock:@escaping(_ status: String) -> Void){
+    public func verificationHash(url:String,verifiSuccessBlock:@escaping(_ status: String) -> Void){
 
        DBRequest.GET(url: url, params: nil) { [weak self] (data) in
          guard let mySelf = self else {return}

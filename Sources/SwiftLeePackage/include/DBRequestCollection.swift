@@ -17,15 +17,18 @@ public struct DBRequestCollection {
     ///   - userModelCloure: 用户模型
     ///   - failure: 错误返回code和message
     public func getUserAccountNum(urlStr:String,userModelCloure:@escaping (UserModel) -> Void,failure : ((Int?, String) ->Void)?){
-        DBRequest.GET(url: urlStr, params: nil) { (json) in
-            let decoder = JSONDecoder()
-            let insertModel = try? decoder.decode(UserModel.self, from: json)
-            guard let model = insertModel else {
-                return
+
+        DBRequest.GET(url: urlStr, params: nil) { (jsonData) in
+            let str = String(data: jsonData, encoding: .utf8)!
+            do {
+                let insertModel = try JSONDecoder().decode(UserModel.self, from: jsonData)
+                DispatchQueue.main.async {
+                    userModelCloure(insertModel)
+                }
+            } catch {
+                failure?(201,"获取用户信息转换失败: \(error)")
             }
-            DispatchQueue.main.async {
-                userModelCloure(model)
-            }
+
         } failure: { (code, message) in
             DispatchQueue.main.async {
                 failure?(code,message)

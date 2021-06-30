@@ -17,20 +17,23 @@ enum MethodType {
 //一次封装
 public class DBRequest {
 
+    public init() {}
+
     /// 请求方法 返回值JSON
-    class func request(_ type : MethodType = .post, url : String, params : [String : Any]?,headers : HTTPHeaders,encoding:ParameterEncoding,success : @escaping (_ data : Data)->(), failure : ((Int?, String) ->Void)?) {
+     class func request(_ type : MethodType = .post, url : String, params : [String : Any]?,headers : HTTPHeaders,encoding:ParameterEncoding,success : @escaping (_ data : Data)->(), failure : ((Int?, String) ->Void)?) {
 
         let method = type == .get ? HTTPMethod.get : HTTPMethod.post
 
         AF.request(url, method: method, parameters: params,encoding: encoding, headers: headers,requestModifier: { $0.timeoutInterval = 60 }).responseData { (response) in
+
             guard response.data != nil else {
                 failure?(-1001,"请求超时")
                 return
             }
 
             switch response.result {
-                case let .success(response):
-                    success(response)
+                case let .success(responseData):
+                    success(responseData)
                 case let .failure(error):
                     if error.responseCode == NSURLErrorTimedOut {
 
@@ -58,7 +61,7 @@ extension DBRequest {
     ///   - params: 参数
     ///   - success: 成功的回调
     ///   - failture: 失败的回调
-    class func GET(url : String, params : [String : Any]?,headers: HTTPHeaders = ["Content-Type":"application/json"],encoding:ParameterEncoding = JSONEncoding.default,success : @escaping (_ data : Data)->(), failure : ((Int?, String) ->Void)?) {
+    public class func GET(url : String, params : [String : Any]?,headers: HTTPHeaders = ["Content-Type":"application/json"],encoding:ParameterEncoding = JSONEncoding.default,success : @escaping (_ data : Data)->(), failure : ((Int?, String) ->Void)?) {
         DBRequest.request(.get, url: url, params: params,headers: headers,encoding:encoding, success: success, failure: failure)
     }
 
@@ -70,7 +73,7 @@ extension DBRequest {
     ///   - params: 参数
     ///   - success: 成功的回调
     ///   - failture: 失败的回调
-    class func POST(url : String, params : [String : Any]?,headers: HTTPHeaders = ["Content-Type":"application/json"],encoding:ParameterEncoding = JSONEncoding.default,success : @escaping (_ data : Data) ->(), failure : ((Int?, String) ->Void)?) {
+    public class func POST(url : String, params : [String : Any]?,headers: HTTPHeaders = ["Content-Type":"application/json"],encoding:ParameterEncoding = JSONEncoding.default,success : @escaping (_ data : Data) ->(), failure : ((Int?, String) ->Void)?) {
         DBRequest.request(.post, url: url, params: params, headers:headers,encoding:encoding, success: success, failure: failure)
     }
 }
